@@ -1,19 +1,5 @@
-/*
-Instructions:
-(1) Refactor .forEach below to create a sequence of Promises that always resolves in the same
-    order it was created.
-  (a) Fetch each planet's JSON from the array of URLs in the search results.
-  (b) Call createPlanetThumb on each planet's response data to add it to the page.
-(2) Use developer tools to determine if the planets are being fetched in series or in parallel.
- */
-
-// Inline configuration for jshint below. Prevents `gulp jshint` from failing with quiz starter code.
-/* jshint unused: false */
-
 (function(document) {
-  'use strict';
-
-  var home = null;
+  let home = null;
 
   /**
    * Helper function to show the search query.
@@ -28,8 +14,8 @@ Instructions:
    * @param  {Object} data - The raw data describing the planet.
    */
   function createPlanetThumb(data) {
-    var pT = document.createElement('planet-thumb');
-    for (var d in data) {
+    let pT = document.createElement('planet-thumb');
+    for (let d in data) {
       pT[d] = data[d];
     }
     home.appendChild(pT);
@@ -63,10 +49,16 @@ Instructions:
     Refactor this code!
      */
     getJSON('../data/earth-like-results.json')
-    .then(function(response) {
-      response.results.forEach(function(url) {
-        getJSON(url).then(createPlanetThumb);
+      .then((response) => {
+        let sequence = Promise.resolve();
+        response.results.forEach((url) => {
+          sequence.then(() => getJSON(url))
+          .then(createPlanetThumb);
+        });
+      })
+      .catch((err) => {
+        addSearchHeader('unknown');
+        console.error(err);
       });
-    });
   });
 })(document);
